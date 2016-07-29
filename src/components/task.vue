@@ -9,7 +9,7 @@ import store from '../vuex/store'
 
 const DRAG_BOX_SHADOW = "5px 5px 3px #888888"
 const DROP_BOX_SHADOW = "rgba(0,0,0) 0px 0px 0px"
-
+const HELP_OFFSET = 20
 
 export default {
   el:'task',
@@ -43,17 +43,38 @@ export default {
       }
     }
   },
+  vuex:{
+    getters:{
+      backlog: state => state.boards.backlog,
+    },
+    actions:{
+
+    },
+  },
   methods: {
+    //checks to see if task is in board dimensions
+    isIn(board){
+      let position = board.position
+      let isInXProx = (this.xPosition + HELP_OFFSET > position.x &&
+        this.xPosition + HELP_OFFSET < position.x + position.width)
+      let isInYProx = (this.yPosition + HELP_OFFSET > position.y &&
+        this.yPosition + HELP_OFFSET < position.y + position.height)
+      /*console.log(`${this.xPosition} > ${position.x} and ${this.xPosition} < ${position.x + position.width}: ${isInXProx}`)
+      console.log(`${this.yPosition} > ${position.y} and ${this.yPosition} < ${position.y + position.height}: ${isInYProx}`)*/
+      return isInXProx && isInYProx
+    },
     drag($e){
       let boundingRect = $e.target.getBoundingClientRect()
       let originalX = boundingRect.left - $e.clientX
       let originalY = boundingRect.top - $e.clientY
+
       this.style.boxShadow = DRAG_BOX_SHADOW
       document.onmousemove = (e) => {
         this.xPosition = originalX + e.clientX
         this.yPosition = originalY + e.clientY
         this.style.left = this.xPosition + 'px'
         this.style.top  = this.yPosition + 'px'
+        console.log(`is in backlog:${this.isIn(this.backlog)}`)
       }
     },
     drop(){
